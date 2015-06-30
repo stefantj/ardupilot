@@ -12,8 +12,8 @@
  */
 void Tracker::update_auto(void)
 {
-    // exit immediately if we do not have a valid vehicle position
-    if (!vehicle.location_valid) {
+    // exit immediately if in AUTO and we do not have a valid vehicle position
+    if (control_mode == AUTO && !vehicle.location_valid) {
         return;
     }
 

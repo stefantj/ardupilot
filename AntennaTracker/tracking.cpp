@@ -18,6 +18,12 @@ void Tracker::update_vehicle_pos_estimate()
         location_update(vehicle.location_estimate, vehicle.heading, vehicle.ground_speed * dt);
         // set valid_location flag
         vehicle.location_valid = true;
+        // if in AUTO, set as target
+        if(control_mode == AUTO){
+            target_loc.lat = vehicle.location.lat;
+            target_loc.lng = vehicle.location.lng;
+            target_loc.alt = vehicle.location.alt;
+        }
     } else {
         // vehicle has been lost, set lost flag
         vehicle.location_valid = false;
@@ -44,7 +50,7 @@ void Tracker::update_tracker_position()
 void Tracker::update_bearing_and_distance()
 {
     // exit immediately if we do not have a valid vehicle position
-    if (!vehicle.location_valid) {
+    if (control_mode == AUTO && !vehicle.location_valid) {
         return;
     }
 
@@ -55,7 +61,7 @@ void Tracker::update_bearing_and_distance()
     }
 
     // calculate distance to vehicle
-    nav_status.distance = get_distance(current_loc, vehicle.location_estimate);
+    nav_status.distance = get_distance(current_loc, target_loc);
 
     // calculate pitch to vehicle
     // To-Do: remove need for check of control_mode
@@ -75,7 +81,7 @@ void Tracker::update_tracking(void)
     // update antenna tracker position from GPS
     update_tracker_position();
 
-    // update bearing and distance to vehicle
+    // update bearing and distance to target
     update_bearing_and_distance();
 
     // do not perform any servo updates until startup delay has passed
@@ -91,6 +97,7 @@ void Tracker::update_tracking(void)
 
     switch (control_mode) {
     case AUTO:
+    case GUIDED:
         update_auto();
         break;
 
@@ -134,7 +141,7 @@ void Tracker::tracking_update_pressure(const mavlink_scaled_pressure_t &msg)
 
     // calculate altitude difference based on difference in barometric pressure
     float alt_diff = barometer.get_altitude_difference(local_pressure, aircraft_pressure);
-    if (!isnan(alt_diff)) {
+    if (control_mode == AUTO && !isnan(alt_diff)) {
         nav_status.altitude_difference = alt_diff + nav_status.altitude_offset;
     }
 

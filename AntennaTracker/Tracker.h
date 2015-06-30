@@ -140,6 +140,8 @@ private:
 
     struct Location current_loc;
 
+    struct Location target_loc;
+
     enum ControlMode control_mode  = INITIALISING;
 
     // Vehicle state
@@ -229,6 +231,7 @@ private:
     bool get_home_eeprom(struct Location &loc);
     void set_home_eeprom(struct Location temp);
     void set_home(struct Location temp);
+    void handle_guided(struct Location temp);
     void arm_servos();
     void disarm_servos();
     void prepare_servos();

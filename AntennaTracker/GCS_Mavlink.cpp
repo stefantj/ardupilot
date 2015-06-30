@@ -46,6 +46,7 @@ void Tracker::send_heartbeat(mavlink_channel_t chan)
     case SCAN:
     case SERVO_TEST:
     case AUTO:
+    case GUIDED:
         base_mode |= MAV_MODE_FLAG_GUIDED_ENABLED |
             MAV_MODE_FLAG_STABILIZE_ENABLED;
         // note that MAV_MODE_FLAG_AUTO_ENABLED does not match what
@@ -701,7 +702,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
         break;
     }
          
-    // When mavproxy 'wp sethome' 
+    // When mavproxy 'wp sethome'
     case MAVLINK_MSG_ID_MISSION_WRITE_PARTIAL_LIST:
     {
         // decode
@@ -792,6 +793,14 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
         if (packet.seq == 0) {
             tracker.set_home(tell_command); // New home in EEPROM
             send_text_P(SEVERITY_LOW,PSTR("new HOME received"));
+            waypoint_receiving = false;
+        }
+
+        //check if this is a guided wp
+        if (packet.current == 2)
+        {
+            tracker.handle_guided(tell_command);
+            send_text_P(SEVERITY_LOW,PSTR("new GUIDED received"));
             waypoint_receiving = false;
         }
 
