@@ -161,6 +161,13 @@ void Tracker::set_home(struct Location temp)
     current_loc = temp;
 }
 
+void Tracker::handle_guided(struct Location temp)
+{
+    target_loc.lat = temp.lat;
+    target_loc.lng = temp.lng;
+    nav_status.altitude_difference = temp.alt - current_loc.alt;
+}
+
 void Tracker::arm_servos()
 {    
     channel_yaw.enable_out();
@@ -193,8 +200,9 @@ void Tracker::set_mode(enum ControlMode mode)
     }
     control_mode = mode;
 
-	switch (control_mode) {
+    switch (control_mode) {
     case AUTO:
+    case GUIDED:
     case MANUAL:
     case SCAN:
     case SERVO_TEST:
@@ -215,6 +223,7 @@ bool Tracker::mavlink_set_mode(uint8_t mode)
 {
     switch (mode) {
     case AUTO:
+    case GUIDED:
     case MANUAL:
     case SCAN:
     case SERVO_TEST:
