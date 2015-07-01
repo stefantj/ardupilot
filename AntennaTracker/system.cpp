@@ -35,6 +35,9 @@ void Tracker::init_tracker()
     // init baro before we start the GCS, so that the CLI baro test works
     barometer.init();
 
+    // initialise battery monitoring
+//    battery.init();
+
     // init the GCS and start snooping for vehicle data
     gcs[0].setup_uart(serial_manager, AP_SerialManager::SerialProtocol_Console, 0);
     gcs[0].set_snoop(mavlink_snoop_static);
@@ -163,9 +166,10 @@ void Tracker::set_home(struct Location temp)
 
 void Tracker::handle_guided(struct Location temp)
 {
+    gcs_send_text_P(SEVERITY_LOW, PSTR("setting target\n"));
     target_loc.lat = temp.lat;
     target_loc.lng = temp.lng;
-    nav_status.altitude_difference = temp.alt - current_loc.alt;
+    nav_status.altitude_difference = temp.alt/100 - current_loc.alt;
 }
 
 void Tracker::arm_servos()

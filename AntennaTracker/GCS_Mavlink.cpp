@@ -731,6 +731,9 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 
         struct Location tell_command = {};
 
+        if(packet.current == 2)
+            send_text_P(SEVERITY_LOW, PSTR("Got GUIDED packet\n"));
+
         switch (packet.frame)
         {
         case MAV_FRAME_MISSION:
@@ -783,14 +786,14 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 
         if (result != MAV_MISSION_ACCEPTED) goto mission_failed;
 
-        // Check if receiving waypoints (mission upload expected)
+/*        // Check if receiving waypoints (mission upload expected)
         if (!waypoint_receiving) {
             result = MAV_MISSION_ERROR;
             goto mission_failed;
         }
-
+*/
         // check if this is the HOME wp
-        if (packet.seq == 0) {
+        if (packet.current != 2 && packet.seq == 0) {
             tracker.set_home(tell_command); // New home in EEPROM
             send_text_P(SEVERITY_LOW,PSTR("new HOME received"));
             waypoint_receiving = false;

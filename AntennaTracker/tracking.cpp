@@ -57,7 +57,7 @@ void Tracker::update_bearing_and_distance()
     // calculate bearing to vehicle
     // To-Do: remove need for check of control_mode
     if (control_mode != SCAN && !nav_status.manual_control_yaw) {
-        nav_status.bearing  = get_bearing_cd(current_loc, vehicle.location_estimate) * 0.01f;
+        nav_status.bearing  = get_bearing_cd(current_loc, target_loc) * 0.01f;
     }
 
     // calculate distance to vehicle
@@ -65,7 +65,7 @@ void Tracker::update_bearing_and_distance()
 
     // calculate pitch to vehicle
     // To-Do: remove need for check of control_mode
-    if (control_mode != SCAN && !nav_status.manual_control_pitch) {
+    if (control_mode == GUIDED || (control_mode != SCAN && !nav_status.manual_control_pitch)) {
         nav_status.pitch    = degrees(atan2f(nav_status.altitude_difference, nav_status.distance));
     }
 }
@@ -83,6 +83,10 @@ void Tracker::update_tracking(void)
 
     // update bearing and distance to target
     update_bearing_and_distance();
+
+    //update current reading
+//    battery.read();
+//    gcs_send_text_fmt(PSTR("%f A\n"),(float)(battery.current_amps()/100.0));
 
     // do not perform any servo updates until startup delay has passed
     if (g.startup_delay > 0 &&
