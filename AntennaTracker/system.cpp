@@ -36,7 +36,7 @@ void Tracker::init_tracker()
     barometer.init();
 
     // initialise battery monitoring
-//    battery.init();
+    battery.init();
 
     // init the GCS and start snooping for vehicle data
     gcs[0].setup_uart(serial_manager, AP_SerialManager::SerialProtocol_Console, 0);
