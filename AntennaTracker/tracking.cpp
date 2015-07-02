@@ -85,8 +85,8 @@ void Tracker::update_tracking(void)
     update_bearing_and_distance();
 
     //update current reading
-//    battery.read();
-//    gcs_send_text_fmt(PSTR("%f A\n"),(float)(battery.current_amps()/100.0));
+    battery.read();
+    gcs_send_text_fmt(PSTR("%f A\n"),(float)(battery.current_amps()/100.0));
 
     // do not perform any servo updates until startup delay has passed
     if (g.startup_delay > 0 &&

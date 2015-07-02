@@ -95,9 +95,22 @@ public:
         k_param_gcs3,               // stream rates for fourth MAVLink port
 
         //
-        // 150: Telemetry control
+        // 140: Telemetry control
         //
         k_param_serial_manager,     // serial manager library
+
+        //
+        // 141: Battery Parameters
+        //
+        k_param_battery_monitoring, // unused
+        k_param_volt_div_ratio,     // unused
+        k_param_curr_amp_per_volt,  // unused
+        k_param_input_voltage, // deprecated, can be deleted
+        k_param_battery = 145,
+        k_param_rssi_pin,
+        k_param_battery_volt_pin,   // unused
+        k_param_battery_curr_pin,   // unused - 148
+
 
         //
         // 200 : Radio settings

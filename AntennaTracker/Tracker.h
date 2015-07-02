@@ -114,7 +114,7 @@ private:
 
     RangeFinder rng;
 
-//    AP_BattMonitor battery;
+    AP_BattMonitor battery;
 
 // Inertial Navigation EKF
 #if AP_AHRS_NAVEKF_AVAILABLE
