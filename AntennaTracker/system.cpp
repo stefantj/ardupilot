@@ -164,12 +164,16 @@ void Tracker::set_home(struct Location temp)
     current_loc = temp;
 }
 
-void Tracker::handle_guided(struct Location temp)
+void Tracker::handle_guided(AP_Mission::Mission_Command &cmd)
 {
-    gcs_send_text_P(SEVERITY_LOW, PSTR("setting target\n"));
-    target_loc.lat = temp.lat;
-    target_loc.lng = temp.lng;
-    nav_status.altitude_difference = temp.alt/100 - current_loc.alt;
+    if(control_mode != GUIDED) return;
+
+    
+
+    target_loc.lat = cmd.content.location.lat;
+    target_loc.lng = cmd.content.location.lng;
+    nav_status.altitude_difference = cmd.content.location.alt/100 - current_loc.alt;
+    gcs_send_text_fmt(PSTR("setting target to %f %f %f\n"), (float)target_loc.lat, (float) target_loc.lng, (float) nav_status.altitude_difference);
 }
 
 void Tracker::arm_servos()

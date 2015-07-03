@@ -56,7 +56,7 @@ void Tracker::update_bearing_and_distance()
 
     // calculate bearing to vehicle
     // To-Do: remove need for check of control_mode
-    if (control_mode != SCAN && !nav_status.manual_control_yaw) {
+    if (control_mode == GUIDED || (control_mode != SCAN && !nav_status.manual_control_yaw)) {
         nav_status.bearing  = get_bearing_cd(current_loc, target_loc) * 0.01f;
     }
 
@@ -86,7 +86,6 @@ void Tracker::update_tracking(void)
 
     //update current reading
     battery.read();
-    gcs_send_text_fmt(PSTR("%f A\n"),(float)(battery.current_amps()/100.0));
 
     // do not perform any servo updates until startup delay has passed
     if (g.startup_delay > 0 &&

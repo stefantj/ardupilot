@@ -146,15 +146,16 @@ void Tracker::send_statustext(mavlink_channel_t chan)
 void Tracker::send_nav_controller_output(mavlink_channel_t chan)
 {
     mavlink_msg_nav_controller_output_send(
-        chan,
-        0,
-        nav_status.pitch,
-        nav_status.bearing,
-        nav_status.bearing,
-        nav_status.distance,
-        nav_status.altitude_difference,
-        0,
-        0);
+                                //Comments to help parse logs:
+        chan,                   //channel
+        0,                      // float nav_roll
+        nav_status.pitch,       //float nav_pitch
+        nav_status.bearing,     //int16_t nav_bearing
+        nav_status.heading,     //int16_t target_bearing
+        nav_status.distance,    //uint16_t wp_dist
+        nav_status.altitude_difference, //float alt_error
+        MAV_SYSTEM_ID,          //float aspd_error
+        (float)100*battery.current_amps()); //float xtrack_error
 }
 
 
@@ -731,8 +732,23 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 
         struct Location tell_command = {};
 
-        if(packet.current == 2)
-            send_text_P(SEVERITY_LOW, PSTR("Got GUIDED packet\n"));
+        //check if this is a guided wp
+        if (packet.current == 2)
+        {
+            struct AP_Mission::Mission_Command cmd = {};
+            //callback loads location into global container
+            if(!AP_Mission::mavlink_to_mission_cmd(packet, cmd)) {
+                result = MAV_MISSION_INVALID;
+                goto mission_failed;
+            } else {
+                tracker.handle_guided(cmd);
+		tracker.gcs_send_text_fmt(PSTR("%ld, %ld, %ld\n"),cmd.content.location.lat, cmd.content.location.lng, cmd.content.location.alt); 
+                tracker.gcs_send_text_fmt(PSTR("%f, %f, %f\n"),1.0e7f*packet.x,1.0e7f*packet.y,1.0e2f*packet.z); 
+                tracker.gcs_send_text_fmt(PSTR("%f, %f\n"),(float)tracker.target_loc.lat,(float)tracker.target_loc.lng); 
+                waypoint_receiving = false;
+            }
+        }
+
 
         switch (packet.frame)
         {
@@ -786,24 +802,10 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 
         if (result != MAV_MISSION_ACCEPTED) goto mission_failed;
 
-/*        // Check if receiving waypoints (mission upload expected)
-        if (!waypoint_receiving) {
-            result = MAV_MISSION_ERROR;
-            goto mission_failed;
-        }
-*/
         // check if this is the HOME wp
         if (packet.current != 2 && packet.seq == 0) {
             tracker.set_home(tell_command); // New home in EEPROM
             send_text_P(SEVERITY_LOW,PSTR("new HOME received"));
-            waypoint_receiving = false;
-        }
-
-        //check if this is a guided wp
-        if (packet.current == 2)
-        {
-            tracker.handle_guided(tell_command);
-            send_text_P(SEVERITY_LOW,PSTR("new GUIDED received"));
             waypoint_receiving = false;
         }
 

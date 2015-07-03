@@ -160,6 +160,7 @@ private:
     // Navigation controller state
     struct {
         float bearing;                  // bearing to vehicle in centi-degrees
+        float heading;                  // heading of tracker in centi-degrees
         float distance;                 // distance to vehicle in meters
         float pitch;                    // pitch to vehicle in degrees (positive means vehicle is above tracker, negative means below)
         float altitude_difference;      // altitude difference between tracker and vehicle in meters.  positive value means vehicle is above tracker
@@ -233,7 +234,7 @@ private:
     bool get_home_eeprom(struct Location &loc);
     void set_home_eeprom(struct Location temp);
     void set_home(struct Location temp);
-    void handle_guided(struct Location temp);
+    void handle_guided(AP_Mission::Mission_Command &cmd);
     void arm_servos();
     void disarm_servos();
     void prepare_servos();
