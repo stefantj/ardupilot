@@ -23,10 +23,13 @@ void Tracker::update_vehicle_pos_estimate()
             target_loc.lat = vehicle.location.lat;
             target_loc.lng = vehicle.location.lng;
             target_loc.alt = vehicle.location.alt;
+            gcs_send_text_fmt(PSTR("Targeting %f %f %f\n"),target_loc.lat, target_loc.lng, target_loc.alt);
         }
+
     } else {
         // vehicle has been lost, set lost flag
         vehicle.location_valid = false;
+        gcs_send_text_P(SEVERITY_LOW, PSTR("?\n"));
     }
 }
 
@@ -56,7 +59,7 @@ void Tracker::update_bearing_and_distance()
 
     // calculate bearing to vehicle
     // To-Do: remove need for check of control_mode
-    if (control_mode == GUIDED || (control_mode != SCAN && !nav_status.manual_control_yaw)) {
+    if (control_mode == AUTO || control_mode == GUIDED || (control_mode != SCAN && !nav_status.manual_control_yaw)) {
         nav_status.bearing  = get_bearing_cd(current_loc, target_loc) * 0.01f;
     }
 
@@ -65,7 +68,7 @@ void Tracker::update_bearing_and_distance()
 
     // calculate pitch to vehicle
     // To-Do: remove need for check of control_mode
-    if (control_mode == GUIDED || (control_mode != SCAN && !nav_status.manual_control_pitch)) {
+    if (control_mode == AUTO || control_mode == GUIDED || (control_mode != SCAN && !nav_status.manual_control_pitch)) {
         nav_status.pitch    = degrees(atan2f(nav_status.altitude_difference, nav_status.distance));
     }
 }

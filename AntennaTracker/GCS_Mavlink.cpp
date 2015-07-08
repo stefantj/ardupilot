@@ -151,7 +151,8 @@ void Tracker::send_nav_controller_output(mavlink_channel_t chan)
         0,                      // float nav_roll
         nav_status.pitch,       //float nav_pitch
         nav_status.bearing,     //int16_t nav_bearing
-        nav_status.heading,     //int16_t target_bearing
+//        nav_status.heading,     //int16_t target_bearing
+        (int16_t)wrap_180_cd(ahrs.yaw_sensor),
         nav_status.distance,    //uint16_t wp_dist
         nav_status.altitude_difference, //float alt_error
         MAV_SYSTEM_ID,          //float aspd_error
